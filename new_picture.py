@@ -10,14 +10,16 @@ from math import floor, sqrt
 import numpy as np
 from matplotlib import pyplot as plt
 from numpy import array
+from scipy.interpolate import CubicSpline
 
 from bf import Graph, maximize_matrix, fill_matrix_none, coordinates_to_maximized
 from inferer_land import class_land
 from inferer_road import class_road
 from Astar import astar_path
+from spline import merge_sort
 
 
-def generated_sum_pic(origin:str, height_root:str, output_img:str, start:tuple, end:tuple):
+def routing_calculation(origin:str, height_root:str, output_img:str, start:tuple, end:tuple):
     # Read road image
     road = class_road(".\\outputs\\test\\cfg.yaml", origin, ".\\input\\test9_result.png")
     land = class_land(".\\land\\outputs\\test\\cfg_land.yaml", origin, ".\\input\\test9_resultL.png")
@@ -27,25 +29,19 @@ def generated_sum_pic(origin:str, height_root:str, output_img:str, start:tuple, 
     if land is None:
         logging.error("Failed to read input image file")
 
-    # road_orig = cv.cvtColor(road, cv.COLOR_BGR2GRAY)
+    road_orig = cv.cvtColor(road, cv.COLOR_BGR2GRAY)
     land_orig = cv.cvtColor(land, cv.COLOR_BGR2GRAY)
 
     # roi = land_orig
-
+    #
     # roi[road_orig == 77] = 77
 
     # cv.imwrite(output_img, roi)
 
-    # Coordinates
-    # height, width = land_orig.shape
-    # deg_pre_pixel_long = abs((rd[0] - lu[0])/width)
-    # deg_pre_pixel_lat = abs((lu[1] - rd[1])/height)
     start_tuple = (start[1], start[0])
     end_tuple = end
     width_shrinkage = 10
     height_shrinkage = 10
-    # start_tuple = int((lu[0] - start[0])//deg_pre_pixel_long), int((rd[1] - start[1])//deg_pre_pixel_lat)
-    # end_tuple = int((lu[0]-end[0])//deg_pre_pixel_long), int((rd[1] - end[1])//deg_pre_pixel_lat)
     end_tuples: List[tuple] = list()
     end_tuples.append(end_tuple)
     matrix = block2matrix(land_orig, height_root)
@@ -56,6 +52,54 @@ def generated_sum_pic(origin:str, height_root:str, output_img:str, start:tuple, 
     print(datetime.datetime.now())
     result = graph.find_path(start_maximized, finish_maximized)
     print(result)
+    sorted_list = result.copy()
+    # what diraction
+    dx = abs(end[0]-start[0])
+    dy = abs(end[1] - start[1])
+    position = False # True - вертекальное положение дороги,False - горизонтальное
+    # horizontal
+    if dx > dy:
+        merge_sort(sorted_list, 0, len(sorted_list))
+    # vertical
+    else:
+        sorted_list = list()
+        position = True
+        for point in result:
+            sorted_list.append((point[1], point[0]))
+        merge_sort(sorted_list, 0, len(sorted_list))
+    # axis x in increase
+    sorted_copy = sorted_list.copy()
+    for i in range(len(sorted_list)-1):
+        if sorted_list[i][0] == sorted_list[i+1][0]:
+            sorted_copy.remove(sorted_list[i+1])
+    sorted_list = sorted_copy.copy()
+
+    # interpolation
+    list_x = list()
+    list_y = list()
+    for i in sorted_list:
+        list_x.append(i[0])
+        list_y.append(i[1])
+    new_coord_x = list()
+    new_coord_y = list()
+    step = 5
+    for i in range(0, len(list_x), step):
+        new_coord_x.append(list_x[i])
+        new_coord_y.append(list_y[i])
+    if new_coord_x[-1] != list_x[-1] or new_coord_y[-1] != list_y[-1]:
+        new_coord_x.append(list_x[-1])
+        new_coord_y.append(list_y[-1])
+    f = CubicSpline(new_coord_x, new_coord_y, bc_type='natural')
+    new_new_y = []
+    for i in range(len(list_x)):
+        new_new_y.append(int(f(list_x[i])))
+    result = list()
+    for i in range(len(list_x)):
+        if position:
+            result.append((new_new_y[i], list_x[i]))
+        else:
+            result.append((list_x[i], new_new_y[i]))
+
     print(datetime.datetime.now())
     new_mat = fill_matrix_none(width_shrinkage, height_shrinkage, matrix, result)
     matrix = [[0 for _ in range(len(new_mat[0]))] for _ in range(len(new_mat))]
@@ -74,9 +118,9 @@ def generated_sum_pic(origin:str, height_root:str, output_img:str, start:tuple, 
     color_mask = np.zeros_like(image, dtype=np.uint8)
     color_mask[np.squeeze(mask == 100), :] = (0, 0, 255)
     #result = cv.addWeighted(land, 0.5, color_mask, 0.5, 1.0)
-    result = cv.addWeighted(image, 0.5, color_mask, 0.5, 1.0)
+    result_img = cv.addWeighted(image, 0.5, color_mask, 0.5, 1.0)
     print("Saving result to '{0}'...".format(output_img))
-    cv.imwrite(output_img, result)
+    cv.imwrite(output_img, result_img)
 
 def block2matrix(image_land, image_height):
     im_height = cv.imread(image_height)
@@ -111,30 +155,6 @@ def block2matrix(image_land, image_height):
     matrix_list = matrix.tolist()
     return matrix_list
 
-# def main() -> int:
-#     # Create argument parser
-#     parser = argparse.ArgumentParser(description='Sum images')
-#     parser.add_argument('--shot', dest='image', required=True, type=str, default="",
-#                         help="Path to dataset root directory")
-#     parser.add_argument('--height', dest='height', required=True, type=str, default="",
-#                         help="Path to dataset root directory")
-#     parser.add_argument('--output-img', dest='output_img', required=True, type=str, default="", metavar="FILE",
-#                         help="path to output image")
-#     parser.add_argument('--left_up', dest='left_up_point', required=True, type=tuple, default="", metavar="",
-#                         help="path to output image")
-#     parser.add_argument('--right_down', dest='right_down_point', required=True, type=tuple, default="", metavar="",
-#                         help="path to output image")
-#     parser.add_argument('--start', dest='start_point', required=True, type=tuple, default="", metavar="",
-#                         help="path to output image")
-#     parser.add_argument('--end', dest='end_point', required=True, type=tuple, default="", metavar="",
-#                         help="path to output image")
-#     args = parser.parse_args()
-#
-#     # generated_sum_pic(args.road_root, args.land_root, args.output_img)
-#     # generated_sum_pic(".\\input\\test9_orig.png",".\\input\\test6_r.png", ".\\input\\test9_l.png", ".\\input\\test6_result.png", (57.195948, 27.880420), (57.191277, 27.899967), (0,0), (0,0))
-#     print('Done.')
-#     return 0
-
 if __name__ == '__main__':
-    generated_sum_pic(".\\input\\test3.png",".\\input\\newDem.png", ".\\input\\RESULT.png",  (628,296), (2422,552))
+    routing_calculation(".\\input\\test2.png", ".\\input\\newDem.png", ".\\input\\RESULT.png", (625, 550), (1710, 1219))
     # exit(main())
