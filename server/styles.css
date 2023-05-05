@@ -1,0 +1,146 @@
+html, body {
+    height: 100%;
+}
+
+html {
+    display: table;
+    margin: auto;
+}
+
+fieldset {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+a:link {
+      text-decoration: none;
+}
+
+a:visited {
+    text-decoration: none;
+}
+
+a:hover {
+      text-decoration: none;
+}
+
+a:active {
+      text-decoration: none;
+}
+
+a {
+    text-align: center;
+}
+
+#spacer {
+    height: 100px;
+}
+
+#download_link {
+    margin-top: 25px;
+    position: relative;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 200px;
+    line-width: 90px;
+}
+
+body {
+    margin: 0 auto;
+    padding: 20px;
+    max-width: 1200px;
+    overflow-y: scroll;
+    font-family: "Open Sans", sans-serif;
+    font-weight: 400;
+    color: #777;
+    background-color: #f7f7f7;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.content {
+    padding: 15px;
+    overflow: hidden;
+    background-color: #e7e7e7;
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+h1 {
+  padding-bottom: 15px;
+  border-bottom: 1px solid #d8d8d8;
+  font-weight: 600;
+}
+
+h1 span {
+  font-family: monospace, serif;
+}
+
+h3 {
+  padding-bottom: 20px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 2px 0 rgba(255, 255, 255, 0.9);
+}
+
+p {
+  margin: 0;
+  padding: 10px 0;
+  color: #777;
+}
+
+.load-wrapp p {
+  padding: 0 0 20px;
+}
+
+.load-wrapp:last-child {
+  margin-right: 0;
+}
+
+.bar {
+  float: left;
+  width: 30px;
+  height: 6px;
+  border-radius: 2px;
+  background-color: #4b9cdb;
+}
+
+#upload-image-land {
+    opacity: 0;
+    z-index: -1;
+    position: absolute;
+}
+
+#upload-image-height {
+    opacity: 0;
+    z-index: -1;
+    position: absolute;
+}
+
+#next {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    width: 100px;
+    height: 25px;
+    margin: 1rem auto;
+    border: 1px solid #777;
+    color: #777;
+}
+
+.load-10 .bar {
+    animation: loadingJ 10s cubic-bezier(0.17, 0.37, 0.43, 0.67) infinite;
+}
+
+@keyframes loadingJ {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(250px, 0);
+    background-color: #f5634a;
+    width: 25px;
+  }
+}
