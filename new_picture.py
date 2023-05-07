@@ -51,7 +51,7 @@ def routing_calculation(origin:str, height_root:str, output_img:str, start:tuple
     graph = Graph(matrix_max)
     print(datetime.datetime.now())
     result = graph.find_path(start_maximized, finish_maximized)
-    print(result)
+    # print(result)
     sorted_list = result.copy()
     # what diraction
     dx = abs(end[0]-start[0])
@@ -98,7 +98,7 @@ def routing_calculation(origin:str, height_root:str, output_img:str, start:tuple
         full_list_x.append(start_x)
         start_x += 1
     full_list_x.append(end_x)
-    print(full_list_x)
+    # print(full_list_x)
     for i in range(len(full_list_x)):
         new_new_y.append(int(f(full_list_x[i])))
     final_result = list()
@@ -111,12 +111,14 @@ def routing_calculation(origin:str, height_root:str, output_img:str, start:tuple
     print(datetime.datetime.now())
     final_result_copy = final_result.copy()
     for i in range(len(final_result)-1):
-        if (final_result[i][1] - final_result[i+1][1] > 1):
+        if final_result[i][1] - final_result[i + 1][1] > 1:
             const_x = final_result[i+1][0]
             const_y = final_result[i+1][1]
             for j in range(final_result[i][1] - final_result[i+1][1] - 1):
                 const_y -=1
                 final_result_copy.append((const_x, const_y))
+
+    print(final_result_copy)
 
     new_mat = fill_matrix_none(width_shrinkage, height_shrinkage, matrix, final_result_copy)
     matrix = [[0 for _ in range(len(new_mat[0]))] for _ in range(len(new_mat))]

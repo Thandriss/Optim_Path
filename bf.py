@@ -115,6 +115,7 @@ if __name__ == "__main__":
     mask = array(matrix)
     print(mask)
     print(mask[0:3])
+    # print(list_to_add)
     # print(matrix[0:1, 0:1])
     maximized = maximize_matrix(width_shrinkage, height_shrinkage, matrix)
     g = Graph(maximized)

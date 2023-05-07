@@ -44,6 +44,11 @@ if __name__ == "__main__":
     new_coord_x = list()
     new_coord_y = list()
     step = 5
+    list_to_add = list()
+    list_to_add.append((1, 1))
+    list_to_add.append((1, 2))
+    list_to_add.append((1, 3))
+    print(list_to_add)
     for i in range(0, len(coord_y), step):
         new_coord_x.append(coord_x[i])
         new_coord_y.append(coord_y[i])
