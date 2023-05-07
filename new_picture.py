@@ -82,7 +82,7 @@ def routing_calculation(origin:str, height_root:str, output_img:str, start:tuple
         list_y.append(i[1])
     new_coord_x = list()
     new_coord_y = list()
-    step = 5
+    step = 15
     for i in range(0, len(list_x), step):
         new_coord_x.append(list_x[i])
         new_coord_y.append(list_y[i])
@@ -91,25 +91,42 @@ def routing_calculation(origin:str, height_root:str, output_img:str, start:tuple
         new_coord_y.append(list_y[-1])
     f = CubicSpline(new_coord_x, new_coord_y, bc_type='natural')
     new_new_y = []
-    for i in range(len(list_x)):
-        new_new_y.append(int(f(list_x[i])))
-    result = list()
-    for i in range(len(list_x)):
+    start_x = list_x[0]
+    end_x = list_x[-1]
+    full_list_x = list()
+    while start_x != end_x:
+        full_list_x.append(start_x)
+        start_x += 1
+    full_list_x.append(end_x)
+    print(full_list_x)
+    for i in range(len(full_list_x)):
+        new_new_y.append(int(f(full_list_x[i])))
+    final_result = list()
+    for i in range(len(full_list_x)):
         if position:
-            result.append((new_new_y[i], list_x[i]))
+            final_result.append((new_new_y[i], full_list_x[i]))
         else:
-            result.append((list_x[i], new_new_y[i]))
-
+            final_result.append((full_list_x[i], new_new_y[i]))
+    print(final_result)
     print(datetime.datetime.now())
-    new_mat = fill_matrix_none(width_shrinkage, height_shrinkage, matrix, result)
+    final_result_copy = final_result.copy()
+    for i in range(len(final_result)-1):
+        if (final_result[i][1] - final_result[i+1][1] > 1):
+            const_x = final_result[i+1][0]
+            const_y = final_result[i+1][1]
+            for j in range(final_result[i][1] - final_result[i+1][1] - 1):
+                const_y -=1
+                final_result_copy.append((const_x, const_y))
+
+    new_mat = fill_matrix_none(width_shrinkage, height_shrinkage, matrix, final_result_copy)
     matrix = [[0 for _ in range(len(new_mat[0]))] for _ in range(len(new_mat))]
     matrix_ = [[0 for _ in range(len(matrix_max[0]))] for _ in range(len(matrix_max))]
     for i in range(len(new_mat)):
         for j in range(len(new_mat[0])):
             if new_mat[i][j] != None:
                 matrix[i][j] = 100
-    for i in range(len(result)):
-        x, y = result[i]
+    for i in range(len(final_result_copy)):
+        x, y = final_result_copy[i]
         matrix_[x][y] = 1
     plt.title("Path")
     plt.imshow(matrix_)

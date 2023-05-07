@@ -90,6 +90,9 @@ def fill_matrix_none(width_prop, height_prop, matrix:list, coordinates:list):
             right_bot_corner_x = width
         if right_bot_corner_y > height:
             right_bot_corner_y = height
+        # for i in range(left_top_corner_x, right_bot_corner_x):
+        #     for j in range(left_top_corner_y, right_bot_corner_y):
+        #         b[j][i] = matrix[j][i]
         for j in range(left_top_corner_y, right_bot_corner_y):
             for i in range(left_top_corner_x, right_bot_corner_x):
                 b[j][i] = matrix[j][i]
