@@ -25,10 +25,11 @@ class Graph:
 
     def bellman_ford(self, source: tuple):
         distance = [[float("Inf") for _ in range(self.width)] for _ in range(self.height)]
+        print(source)
         distance[source[0]][source[1]] = 0
         predecessor = [[(None, None) for _ in range(self.width)] for _ in range(self.height)]
         for i in range(self.width * self.height - 1):
-            print(i)
+            # print(i)
             for u, v, w in self.graph:
                 if w is None:
                     continue
@@ -73,7 +74,7 @@ def maximize_matrix(new_width: int, new_height: int, matrix: list):
     for index in range(len(final_matrix)):
         for inner_index in range(len(final_matrix[index])):
             final_matrix[index][inner_index] = final_matrix[index][inner_index] / new_height
-    return final_matrix
+    return array(final_matrix)
 
 def fill_matrix_none(width_prop, height_prop, matrix:list, coordinates:list):
     width = len(matrix[0])
@@ -111,12 +112,14 @@ if __name__ == "__main__":
     finish = (9, 9)
     start_maximized = coordinates_to_maximized(start, width_shrinkage, height_shrinkage)
     finish_maximized = coordinates_to_maximized(finish, width_shrinkage, height_shrinkage)
-    matrix = [[random.randint(1, 100) for _ in range(width)] for _ in range(height)]
+    matrix = array([[random.randint(1, 100) for _ in range(width)] for _ in range(height)])
     mask = array(matrix)
     print(mask)
+    print("mask[0:3]")
     print(mask[0:3])
-    # print(list_to_add)
-    # print(matrix[0:1, 0:1])
+    print("mask[:, 2:5]")
+    # print(mask[1:3, 2:5])
+    print(mask[:, 2:5])
     maximized = maximize_matrix(width_shrinkage, height_shrinkage, matrix)
     g = Graph(maximized)
     now = datetime.datetime.now()

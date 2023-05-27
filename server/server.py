@@ -3,7 +3,7 @@ import threading
 from http.server import BaseHTTPRequestHandler
 
 from inferer_road import class_road
-from new_picture import routing_calculation
+from new_route import routing_calculation
 
 ready_to_serve = False
 

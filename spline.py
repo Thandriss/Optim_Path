@@ -65,11 +65,4 @@ if __name__ == "__main__":
     plt.plot(coord_x, new_new_y, label="b")
     plt.legend()
     plt.show()
-    # print(trans_y)
-    # for i in range(1, len(trans_y)):
-    #     new_list.append(new_list[i-1]+trans_y[i])
-    # plt.figure()
-    # plt.plot(list_x, list_y, label="a")
-    # plt.plot(list_x, new_list, label="b")
-    # plt.legend()
-    # plt.show()
+

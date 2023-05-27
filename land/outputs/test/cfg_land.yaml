@@ -1,9 +1,9 @@
 DATASETS:
   CALCULATE_CLASS_WEIGHTS: False
   TEST:
-    ROOT_DIR: ['C:/Users/ccivi/Desktop/land-analyzer-model-master/data/land/outputs/valid/']
+    ROOT_DIR: ['D:/proj/Optim_Path/data/land/outputs/valid/']
   TRAIN:
-    ROOT_DIR: ['C:/Users/ccivi/Desktop/land-analyzer-model-master/data/land/outputs/train/']
+    ROOT_DIR: ['D:/proj/Optim_Path/data/land/outputs/train/']
 DATA_LOADER:
   NUM_WORKERS: 4
   PIN_MEMORY: True

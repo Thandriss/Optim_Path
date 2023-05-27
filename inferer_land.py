@@ -97,13 +97,13 @@ def class_land(config_file, input_img, output_img, scale = 1.0, opts = []):
     mask = result_mask[0:image.shape[0], 0:image.shape[1]]
 
     color_mask = np.zeros_like(image, dtype=np.uint8)
-    color_mask[np.squeeze(mask == 1, -1), :] = (255, 255, 0)  # (255, 128, 0) # urban_land
-    color_mask[np.squeeze(mask == 2, -1), :] = (0, 255, 255)  # (0, 255, 239) # agriculture_land
-    color_mask[np.squeeze(mask == 3, -1), :] = (255, 0, 255)  # (0, 255, 239) # rangeland
-    color_mask[np.squeeze(mask == 4, -1), :] = (0, 255, 0)  # (0, 255, 239) # forest_land
-    color_mask[np.squeeze(mask == 5, -1), :] = (255, 0, 0)  # (0, 255, 239) # water
-    color_mask[np.squeeze(mask == 6, -1), :] = (255, 255, 255)  # (0, 255, 239) # barren_land
-    color_mask[np.squeeze(mask == 7, -1), :] = (0, 0, 0)  # (0, 255, 239) # unknown
+    color_mask[np.squeeze(mask == 1, -1), :] = (255, 255, 0)   # urban_land
+    color_mask[np.squeeze(mask == 2, -1), :] = (0, 255, 255)   # agriculture_land
+    color_mask[np.squeeze(mask == 3, -1), :] = (255, 0, 255)   # rangeland
+    color_mask[np.squeeze(mask == 4, -1), :] = (0, 255, 0)   # forest_land
+    color_mask[np.squeeze(mask == 5, -1), :] = (255, 0, 255) # (255, 0, 0)   # water
+    color_mask[np.squeeze(mask == 6, -1), :] = (255, 0, 255) # (255, 255, 255)  # barren_land
+    color_mask[np.squeeze(mask == 7, -1), :] = (255, 0, 255) # (0, 0, 0)  # unknown
     result = cv.addWeighted(image, 0.0, color_mask, 1.0, 1.0)
 
     filepath = os.path.abspath(output_img)

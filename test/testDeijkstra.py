@@ -1,7 +1,7 @@
 import unittest
 from math import sqrt
 
-from Astar import astar_path
+from dijkstra import astar_path
 
 
 class MyTestCase(unittest.TestCase):
