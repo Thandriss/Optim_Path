@@ -1,9 +1,7 @@
 from .multiclass_segmentator import MulticlassSegmentator
-from .ships_detector import ShipsDetector
 
 _MODEL_META_ARCHITECTURES = {
-    "MulticlassSegmentator": MulticlassSegmentator,
-    "ShipsDetector": ShipsDetector,
+    "MulticlassSegmentator": MulticlassSegmentator
 }
 
 def build_model(cfg):

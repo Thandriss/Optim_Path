@@ -1,6 +1,6 @@
 import logging
 from .datasets import build_dataset, build_dataset_ships
-from .transforms import build_transforms, build_transforms_ships
+from .transforms import build_transforms
 from torch.utils.data import Dataset, ConcatDataset, RandomSampler, SequentialSampler, BatchSampler, DataLoader
 
 
@@ -46,26 +46,4 @@ def make_data_loader(cfg, is_train:bool = True) -> DataLoader:
 
     data_loader = create_loader(dataset, shuffle, batch_size, cfg.DATA_LOADER.NUM_WORKERS, cfg.DATA_LOADER.PIN_MEMORY)
 
-    return data_loader
-
-
-def make_data_loader_ships(cfg, is_train:bool = True) -> DataLoader:
-    logger = logging.getLogger('CORE')
-
-    transforms = build_transforms_ships(cfg.INPUT.IMAGE_SIZE, is_train=is_train, to_tensor=True)
-
-    # Create dataset
-    if is_train:
-        meta_path = cfg.DATASETS.TRAIN_META_PATH
-    else:
-        meta_path = cfg.DATASETS.VALID_META_PATH
-
-    dataset = build_dataset_ships(cfg.DATASETS.IMGS_DIR, meta_path, transforms)
-    logger.info("Loaded dataset from '{0}'. Size: {1}".format(meta_path, dataset.__len__()))
-
-    # Create data loader
-    batch_size = cfg.SOLVER.BATCH_SIZE if is_train else cfg.TEST.BATCH_SIZE
-    shuffle = is_train
-
-    data_loader = create_loader(dataset, shuffle, batch_size, cfg.DATA_LOADER.NUM_WORKERS, cfg.DATA_LOADER.PIN_MEMORY)
     return data_loader

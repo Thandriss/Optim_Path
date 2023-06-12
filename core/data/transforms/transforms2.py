@@ -1,7 +1,6 @@
 import torch
 import cv2 as cv
 import numpy as np
-from torch import float32
 
 
 class RandomCrop(object):

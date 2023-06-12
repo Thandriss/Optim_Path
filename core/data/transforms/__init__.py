@@ -1,5 +1,4 @@
 from .transforms2 import *
-from . import transforms_ships as ts
 
 
 class TransformCompose(object):
@@ -38,26 +37,3 @@ def build_transforms(image_size, is_train:bool=True, to_tensor:bool=True):
     transform = TransformCompose(transform)
     return transform
 
-
-def build_transforms_ships(image_size, is_train:bool=True, to_tensor:bool=True):
-    if is_train:
-        transform = [
-            ts.Resize(image_size),
-            ts.ConvertColor('BGR', 'GRAY'),
-            ts.ConvertFromInts(),
-            ts.Clip()
-        ]
-    else:
-        transform = [
-            ts.Resize(image_size),
-            ts.ConvertColor('BGR', 'GRAY'),
-            ts.ConvertFromInts(),
-        ]
-
-    # TODO: check rects? 0 <= x1 < x2 < W ...
-
-    if to_tensor:
-        transform = transform + [ts.Normalize(), ts.ToTensor(norm_mask=True)]
-
-    transform = TransformCompose(transform)
-    return transform

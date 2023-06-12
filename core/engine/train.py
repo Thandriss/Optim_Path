@@ -1,5 +1,4 @@
 import os
-import time
 import torch
 import logging
 import numpy as np
@@ -33,10 +32,8 @@ def do_eval(cfg, model, class_weights, distributed, **kwargs):
 
 def draw_masks(image, classes_mask):
     color_mask = np.zeros_like(image, dtype=np.uint8) # TODO: 3-channel
-    # color_mask[np.squeeze(classes_mask == 1, -1), :] = (255, 128, 0) # river
-    # color_mask[np.squeeze(classes_mask == 2, -1), :] = (255, 222, 0) # water
-    color_mask[classes_mask == 1, :] = (0, 128, 255) #(255, 128, 0) # river
-    color_mask[classes_mask == 2, :] = (239, 255, 0) #(0, 255, 239) # water
+    color_mask[classes_mask == 1, :] = (0, 128, 255)
+    color_mask[classes_mask == 2, :] = (239, 255, 0)
     return cv.addWeighted(image, 0.85, color_mask, 0.15, 1.0)
 
 
