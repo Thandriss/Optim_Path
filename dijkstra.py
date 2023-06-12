@@ -5,7 +5,7 @@ from typing import List, Any
 
 sqrt2 = sqrt(2)
 
-def astar_path(start_tuple, end_tuples, block, find_nearest=False, feedback=None):
+def find_path(start_tuple, end_tuples, block, find_nearest=False, feedback=None):
     class Grid:
         def __init__(self, matrix):
             self.map = matrix
@@ -69,7 +69,6 @@ def astar_path(start_tuple, end_tuples, block, find_nearest=False, feedback=None
         end = end_tuple
         end_dict[end_tuple[0]].append(end_tuple)
     end_row_cols = end_tuples
-    #end_row_cols = set(end_dict.keys())
     end_row_col_list: List[Any] = list()
     end_row_col_list.append(end_row_cols)
     start_row_col = start_tuple
@@ -157,12 +156,6 @@ def astar_path(start_tuple, end_tuples, block, find_nearest=False, feedback=None
             new_cost = cost_so_far[current_node] + grid.simple_cost(current_node, nex)
             if nex not in cost_so_far or new_cost < cost_so_far[nex]:
                 cost_so_far[nex] = new_cost
-                priority = new_cost + heuristic(end, nex)
-                frontier.put((priority, nex))
-                # frontier.put((new_cost, nex))
+                frontier.put((new_cost, nex))
                 came_from[nex] = current_node
     return result
-def heuristic(id1, id2):
-    x1, y1 = id1
-    x2, y2 = id2
-    return abs(x1 - x2) + abs(y1 - y2)

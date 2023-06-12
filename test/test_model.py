@@ -1,7 +1,7 @@
 import math
 import cv2 as cv
 
-from spline import merge_sort
+from sort import merge_sort
 
 
 def points(image, flag):
@@ -112,7 +112,7 @@ def fillPoints(list_points, flag):
         else:
             point = list_points[i]
         distance = len_dist(prevPoint, point)
-        if distance < 10:
+        if distance < 20:
             i += 1
             continue
         length += distance
@@ -146,7 +146,7 @@ class Point:
         self.dist = len
 
 def cost(image, land,  flag):
-    list_orig = points(image, flag)
+    list_orig = allway(image)#points(image, flag)
     read = cv.imread(land)
     land_orig = cv.cvtColor(read, cv.COLOR_BGR2GRAY)
     result_cost = 0
@@ -156,6 +156,7 @@ def cost(image, land,  flag):
     image_land2[image_land2 == 179] = 4
     image_land2[image_land2 == 226] = 2
     image_land2[image_land2 == 106] = 1
+    image_land2[image_land2 == 105] = 1
     image_land2[image_land2 == 150] = 3
     image_land2[image_land2 == 30] = 5
     image_land2[image_land2 == 255] = 6
@@ -166,7 +167,17 @@ def cost(image, land,  flag):
         else:
             result_cost += image_land2[i.x][i.y]
     return result_cost
-
+def allway(img):
+    read = cv.imread(img)
+    road_orig = cv.cvtColor(read, cv.COLOR_BGR2GRAY)
+    list_of_points = list()
+    roi = road_orig
+    roi[road_orig > 0] = 1
+    for i in range(len(roi)):
+        for j in range(len(roi[0])):
+            if roi[i][j] == 1:
+                list_of_points.append((i, j))
+    return list_of_points
 
 if __name__ == "__main__":
     result1 = compare_curve("D:\\proj\\Optim_Path\\test\\test1\\orig_cut.png", True,

@@ -1,18 +1,15 @@
-import argparse
-import datetime
 import logging
-import os
 from math import sqrt
-from typing import List, Any
 import cv2 as cv
 import numpy as np
 from numpy import array
 from scipy.interpolate import CubicSpline
 
-from bf import Graph, maximize_matrix, fill_matrix_none, coordinates_to_maximized
+from bf import maximize_matrix, fill_matrix_none, coordinates_to_maximized
+from dijkstra import find_path
 from inferer_land import class_land
 from inferer_road import class_road
-from spline import merge_sort
+from sort import merge_sort
 
 
 def routing_calculation(origin: str, height_root: str, output_img: str, start: tuple, end: list):
@@ -25,12 +22,7 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
     if land is None:
         logging.error("Failed to read input image file")
 
-    road_orig = cv.cvtColor(road, cv.COLOR_BGR2GRAY)
     land_orig = cv.cvtColor(land, cv.COLOR_BGR2GRAY)
-    # roi = land_orig
-    #
-    # roi[road_orig == 77] = 77
-    # cv.imwrite(output_img, roi)
 
     start_tuple = (start[1], start[0])
     width_shrinkage = 10
@@ -51,31 +43,23 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
             list_finish.append(end_p)
         else:
             start_p = coordinates_to_maximized(end[i - 1], width_shrinkage, height_shrinkage)
-            print(start_p)
             start_p = start_p[1], start_p[0]
             end_p = coordinates_to_maximized(end[i], width_shrinkage, height_shrinkage)
-            print(end_p)
             list_start.append(start_p)
             list_finish.append(end_p)
         # what diraction
         dx = abs(end_p[0] - start_p[0])
         dy = abs(end_p[1] - start_p[1])
-        position = False  # True - вертекальное положение дороги,False - горизонтальное
+        position = False  # True - вертекальное (vertical) положение дороги,False - горизонтальное (horizontal)
         if dy >= dx:
             position = True
         # cutting
         if position:
-            print("vertical")
             reduced_mat = matrix_max[start_p[0]:end_p[1] + 1].copy()
             # change coords
             new_start = (0, start_p[1])
             new_finish = (end_p[0], end_p[1] - start_p[0])
-            print("new finish")
-            print(new_finish)
-            print("new start")
-            print(new_start)
         else:
-            print("horizontal")
             if start_p[1] > end_p[0]:
                 start_early = True
                 reduced_mat = matrix_max[:, end_p[0]:start_p[1] + 1].copy()
@@ -87,16 +71,7 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
             else:
                 new_start = (start_p[0], 0)
                 new_finish = (abs(end_p[0] - start_p[1]), end_p[1])
-            print("new finish")
-            print(new_finish)
-            print("new start")
-            print(new_start)
-        graph = Graph(reduced_mat)
-        print(datetime.datetime.now())
-        path = graph.find_path(new_start, new_finish)
-        print("path")
-        print(path)
-        print("end path")
+        path = find_path(new_start, new_finish, reduced_mat)
         # processing results
         if position:
             for j in range(len(path)):
@@ -107,27 +82,14 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
                     path[j] = path[j][0], path[j][1] + end_p[0]
                 else:
                     path[j] = path[j][0], path[j][1] + start_p[1]
-        print("path")
-        print(path)
-        print("end path")
+
         result.append(path)
         list_position.append(position)
 
-    print(result)
     sorted_lists = result
     final = []
-    print("POSITION")
-    print(list_position)
-    print("FINISH")
-    print(list_finish)
-    print("Start")
-    print(list_start)
     for i in range(len(sorted_lists)):
-        print("NEW!!!________________________________")
         sorted_list = sorted_lists[i]
-        print("sorted_list")
-        print(sorted_list)
-        print("end sorted_list")
         local_position = list_position[i]
         # horizontal
         if not local_position:
@@ -138,7 +100,6 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
             sorted_list_new = list()
             for point in sorted_list:
                 sorted_list_new.append((point[1], point[0]))
-            # merge_sort(sorted_list_new, 0, len(sorted_list))
             sorted_list = sorted_list_new.copy()
         # axis x in increase
         sorted_copy = sorted_list.copy()
@@ -147,28 +108,14 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
             if sorted_list[j][1] == sorted_list[j + 1][1]:
                 sorted_copy.remove(sorted_list[j + 1])
         sorted_list = sorted_copy.copy()
-        print("sorted_list")
-        print(sorted_list)
-        print("end sorted_list")
-        # if local_position:
-        #     sorted_list.remove(sorted_list[-1])
-        #     sorted_list.append((list_finish[i][0], list_finish[i][1]))
         # interpolation
         list_x = list()
         list_y = list()
-        print("changed")
         ind_x = 1
         ind_y = 0
-        # if not local_position:
-        #     ind_x = 1
-        #     ind_y = 0
         for point in sorted_list:
             list_x.append(point[ind_x])
             list_y.append(point[ind_y])
-        print("list x and y")
-        print(list_x)
-        print(list_y)
-        print("end list x and y")
         new_coord_x = list()
         new_coord_y = list()
         sort_coords = list()
@@ -193,21 +140,18 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
         for point in sort_coords:
             new_coord_x.append(point[0])
             new_coord_y.append(point[1])
-        if local_position:  # was it
+        if local_position:
             indx = 1
             indy = 0
         else:
             indx = 0
             indy = 1
         if new_coord_x[-1] != list_finish[i][indx] and new_coord_x[0] != list_finish[i][indx]:
-            # and new_coord_x[0] != list_finish[i][indx]
-            print("add")
             new_coord_x.append(list_finish[i][indx])
             new_coord_y.append(list_finish[i][indy])
             list_x.append(list_finish[i][indx])
             list_y.append(list_finish[i][indy])
         elif new_coord_x[-1] == list_finish[i][indx]:
-            print("here")
             new_coord_x.pop(-1)
             new_coord_y.pop(-1)
             list_x.pop(-1)
@@ -223,34 +167,16 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
             new_coord_y.pop(0)
             new_coord_x.append(list_finish[i][indx])
             new_coord_y.append(list_finish[i][indy])
-        # elif new_coord_x[0] != list_finish[i][indx]:
-        #     list_x.pop(0)
-        #     list_y.pop(0)
-        #     new_coord_x.pop(0)
-        #     new_coord_y.pop(0)
-        #     new_coord_x.append(list_finish[i][indx])
-        #     new_coord_y.append(list_finish[i][indy])
-
-        print("new coord")
-        print(new_coord_x)
-        print(new_coord_y)
-        print("end new coord")
         make_coord = list()
         for j in range(len(new_coord_x)):
             make_coord.append((new_coord_x[j], new_coord_y[j]))
         merge_sort(make_coord, 0, len(make_coord))
         new_coord_x = list()
         new_coord_y = list()
-        print("make coord")
-        print(make_coord)
         for j in range(len(make_coord)):
             new_coord_x.append(make_coord[j][0])
             new_coord_y.append(make_coord[j][1])
         del make_coord
-        print("new coord")
-        print(new_coord_x)
-        print(new_coord_y)
-        print("end new coord")
         f = CubicSpline(new_coord_x, new_coord_y, bc_type='natural')
         new_new_y = []
         start_x = new_coord_x[0]
@@ -260,9 +186,6 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
         del list_y
         del new_coord_y
         del new_coord_x
-        print("ADD x")
-        print(start_x)
-        print(end_x)
         while start_x != end_x:
             full_list_x.append(start_x)
             start_x += 1
@@ -276,8 +199,6 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
             else:
                 final_result.append((new_new_y[id], full_list_x[id]))
 
-        print(final_result)
-        print(datetime.datetime.now())
         final_result_copy = final_result.copy()
         ind_x = 0
         ind_y = 1
@@ -320,11 +241,11 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
     mask = array(matrix)
     color_mask = np.zeros_like(image, dtype=np.uint8)
     color_mask[np.squeeze(mask == 100), :] = (0, 0, 255)
-    result_img = cv.addWeighted(land, 0, color_mask, 1, 1.0)
-    result_ph = cv.addWeighted(image, 0.5, color_mask, 0.5, 1.0)
+    result_img = cv.addWeighted(image, 0.5, color_mask, 0.5, 1.0)
+    result_land = cv.addWeighted(land, 0.5, color_mask, 0.5, 1.0)
     print("Saving result to '{0}'...".format(output_img))
     cv.imwrite(output_img, result_img)
-    cv.imwrite(".\\input\\RESULT_PH.png", result_ph)
+    cv.imwrite(".\\input\\RESULT_PH.png", result_land)
 
 
 def block2matrix(image_land, image_height):

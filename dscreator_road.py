@@ -37,17 +37,6 @@ def convert_dataset(src_root:str, dst_root:str, tile_size:int, scale:float=1.0, 
             continue
         road_orig = cv.cvtColor(road_orig, cv.COLOR_BGR2GRAY)
 
-        # # Read 'water' mask
-        # water_paths = glob(os.path.join(sample_path, 'mask_water/*'))
-        # if len(water_paths) != 1:
-        #     print("Found more than 1 water masks in '{0}'. Skipped.".format(sample_path))
-        #     continue
-
-        # water_orig = cv.imread(water_paths[0])
-        # if water_orig is None:
-        #     print("Failed to read water mask '{0}'. Skipped.".format(water_paths[0]))
-        #     continue
-        # water_orig = cv.cvtColor(water_orig, cv.COLOR_BGR2GRAY)
 
         # Check shapes
         if not (image_orig.shape[0:2] == road_orig.shape[0:2]):
@@ -70,8 +59,6 @@ def convert_dataset(src_root:str, dst_root:str, tile_size:int, scale:float=1.0, 
         image_exp[:image_orig.shape[0], :image_orig.shape[1]] = image_orig
         road_exp = np.zeros((height_exp, width_exp), np.uint8)
         road_exp[:road_orig.shape[0], :road_orig.shape[1]] = road_orig
-        # water_exp = np.zeros((height_exp, width_exp), np.uint8)
-        # water_exp[:water_orig.shape[0], :water_orig.shape[1]] = water_orig
         roi_exp = np.zeros((height_exp, width_exp, 1), dtype=roi.dtype)
         roi_exp[:roi.shape[0], :roi.shape[1]] = roi
 
@@ -106,8 +93,6 @@ def convert_dataset(src_root:str, dst_root:str, tile_size:int, scale:float=1.0, 
                 label_tile = np.zeros((tile_size, tile_size), np.uint8)
                 road_tile = road_exp[y_offset:y_offset + tile_size, x_offset:x_offset + tile_size]
                 label_tile[road_tile > 0] = 1
-                # water_tile = water_exp[y_offset:y_offset + tile_size, x_offset:x_offset + tile_size]
-                # label_tile[water_tile > 0] = 2
 
                 # Skip empty labels
                 if skip_empty and np.count_nonzero(label_tile) < 1:
@@ -126,14 +111,6 @@ def convert_dataset(src_root:str, dst_root:str, tile_size:int, scale:float=1.0, 
                 roi_tile = roi_exp[y_offset:y_offset + tile_size, x_offset:x_offset + tile_size]
                 cv.imwrite(roi_filename, roi_tile)
 
-                # print(img_paths[0], np.count_nonzero(label_tile))
-                # cv.imshow('Image', image_tile)
-                # # cv.imshow('River', river_tile)
-                # # cv.imshow('Water', water_tile)
-                # cv.imshow('Label', 127 * label_tile)
-                # cv.imshow('ROI', roi_tile)
-                # if cv.waitKey(0) & 0xFF == ord('q'):
-                #     return -1
 
                 saved_counter += 1
 

@@ -72,13 +72,7 @@ class Server(BaseHTTPRequestHandler):
 
     def handle_get_calc(self):
         self.send_response(200)
-        # cookie = SimpleCookie()
-        # session_id = str(random.randint(0, 4294967295))
-        # cookie['session-id'] = session_id
-        # self.ready_to_serve[session_id] = False
         self.send_header("Content-type", "text/html")
-        # for morsel in cookie.values():
-        #     self.send_header("Set-Cookie", morsel.OutputString())
         self.end_headers()
         self.wfile.write(bytes(self.calculation_page, encoding='utf8'))
         ctype, pdict = cgi.parse_header(self.headers['content-type'])
@@ -99,10 +93,14 @@ class Server(BaseHTTPRequestHandler):
             startx = int(liststart[0])
             starty = int(liststart[1])
             listend = end.split(',')
-            endx = int(listend[0])
-            endy = int(listend[1])
+            end_t = list()
+            i = 0
+            while i != len(listend):
+                endx = int(listend[i])
+                endy = int(listend[i+1])
+                i += 2
+                end_t.append((endx, endy))
             start_t = (startx, starty)
-            end_t = (endx, endy)
         return start_t, end_t
 
     def do_GET(self):
@@ -121,8 +119,6 @@ class Server(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path == "/calc":
             startp, endp = self.handle_get_calc()
-            # thread = threading.Thread(target=self.classification,
-            #                          args=[".\\outputs\\test\\cfg.yaml", "server\\image_map.png", ".\\server\\result.png"])
             thread = threading.Thread(target=self.result,
                                       args=["server\\image_map.png", "server\\image_height.png",
                                             ".\\server\\result.png", startp, endp])

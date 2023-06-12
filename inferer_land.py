@@ -101,9 +101,9 @@ def class_land(config_file, input_img, output_img, scale = 1.0, opts = []):
     color_mask[np.squeeze(mask == 2, -1), :] = (0, 255, 255)   # agriculture_land
     color_mask[np.squeeze(mask == 3, -1), :] = (255, 0, 255)   # rangeland
     color_mask[np.squeeze(mask == 4, -1), :] = (0, 255, 0)   # forest_land
-    color_mask[np.squeeze(mask == 5, -1), :] = (255, 0, 255) # (255, 0, 0)   # water
-    color_mask[np.squeeze(mask == 6, -1), :] = (255, 0, 255) # (255, 255, 255)  # barren_land
-    color_mask[np.squeeze(mask == 7, -1), :] = (255, 0, 255) # (0, 0, 0)  # unknown
+    color_mask[np.squeeze(mask == 5, -1), :] = (255, 0, 0)   # water
+    color_mask[np.squeeze(mask == 6, -1), :] = (255, 255, 255)  # barren_land
+    color_mask[np.squeeze(mask == 7, -1), :] = (0, 0, 0)  # unknown
     result = cv.addWeighted(image, 0.0, color_mask, 1.0, 1.0)
 
     filepath = os.path.abspath(output_img)
