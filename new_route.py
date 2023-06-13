@@ -277,7 +277,7 @@ def block2matrix(image_land, image_height):
     land_height[land_height == 255] = 10
     matrix_height = array(land_height)
     matrix_land = array(image_land2)
-    matrix = matrix_land * matrix_height
+    matrix = matrix_land + matrix_height
     matrix_list = matrix.copy()
     return matrix_list
 
