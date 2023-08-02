@@ -5,8 +5,7 @@ import numpy as np
 from numpy import array
 from scipy.interpolate import CubicSpline
 
-from bf import maximize_matrix, fill_matrix_none, coordinates_to_maximized
-from dijkstra import find_path
+from bf import Graph, maximize_matrix, fill_matrix_none, coordinates_to_maximized
 from inferer_land import class_land
 from inferer_road import class_road
 from sort import merge_sort
@@ -71,7 +70,8 @@ def routing_calculation(origin: str, height_root: str, output_img: str, start: t
             else:
                 new_start = (start_p[0], 0)
                 new_finish = (abs(end_p[0] - start_p[1]), end_p[1])
-        path = find_path(new_start, new_finish, reduced_mat)
+        graph = Graph(reduced_mat)
+        path = graph.find_path(new_start, new_finish)
         # processing results
         if position:
             for j in range(len(path)):

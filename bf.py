@@ -7,6 +7,47 @@ import datetime
 from numpy import array
 
 
+class Graph:
+    def __init__(self, vertices: list):
+        self.width = len(vertices[0])
+        self.height = len(vertices)
+        self.graph = []
+        for i in range(len(vertices)):
+            for j in range(len(vertices[i])):
+                if i > 0:
+                    self.graph.append([(i, j), (i - 1, j), vertices[i - 1][j]])
+                if i < len(vertices) - 1:
+                    self.graph.append([(i, j), (i + 1, j), vertices[i + 1][j]])
+                if j > 0:
+                    self.graph.append([(i, j), (i, j - 1), vertices[i][j - 1]])
+                if j < len(vertices[i]) - 1:
+                    self.graph.append([(i, j), (i, j + 1), vertices[i][j + 1]])
+
+    def bellman_ford(self, source: tuple):
+        distance = [[float("Inf") for _ in range(self.width)] for _ in range(self.height)]
+        print(source)
+        distance[source[0]][source[1]] = 0
+        predecessor = [[(None, None) for _ in range(self.width)] for _ in range(self.height)]
+        for i in range(self.width * self.height - 1):
+            for u, v, w in self.graph:
+                if w is None:
+                    continue
+                if distance[u[0]][u[1]] != float("Inf") and distance[u[0]][u[1]] + w < distance[v[0]][v[1]]:
+                    distance[v[0]][v[1]] = distance[u[0]][u[1]] + w
+                    predecessor[v[0]][v[1]] = u
+        return predecessor, distance
+
+    def find_path(self, source: tuple, finish: tuple):
+        predecessor, distance = self.bellman_ford(source)
+        path = []
+        current = finish[1], finish[0]
+        while current != (None, None):
+            path.append(current)
+            current = predecessor[current[0]][current[1]]
+        path.reverse()
+        return path
+
+
 def maximize_matrix(new_width: int, new_height: int, matrix: list):
     divided_matrix = []
     for index in range(len(matrix)):
@@ -51,6 +92,9 @@ def fill_matrix_none(width_prop, height_prop, matrix: list, coordinates: list):
             right_bot_corner_x = width
         if right_bot_corner_y > height:
             right_bot_corner_y = height
+        # for i in range(left_top_corner_x, right_bot_corner_x):
+        #     for j in range(left_top_corner_y, right_bot_corner_y):
+        #         b[j][i] = matrix[j][i]
         for j in range(left_top_corner_y, right_bot_corner_y):
             for i in range(left_top_corner_x, right_bot_corner_x):
                 b[j][i] = matrix[j][i]
@@ -59,3 +103,42 @@ def fill_matrix_none(width_prop, height_prop, matrix: list, coordinates: list):
 
 def coordinates_to_maximized(coordinates, width_shrinkage, height_shrinkage):
     return math.floor(float(coordinates[0]) / width_shrinkage), math.floor(float(coordinates[1]) / height_shrinkage)
+
+
+if __name__ == "__main__":
+    width = 10
+    height = 10
+    width_shrinkage = 2
+    height_shrinkage = 2
+    start = (0, 0)
+    finish = (9, 9)
+    start_maximized = coordinates_to_maximized(start, width_shrinkage, height_shrinkage)
+    finish_maximized = coordinates_to_maximized(finish, width_shrinkage, height_shrinkage)
+    matrix = array([[random.randint(1, 100) for _ in range(width)] for _ in range(height)])
+    mask = array(matrix)
+    maximized = maximize_matrix(width_shrinkage, height_shrinkage, matrix)
+    g = Graph(maximized)
+    now = datetime.datetime.now()
+    print(now)
+    path = g.find_path(start_maximized, finish_maximized)  # (height - 1, width - 1))
+    now = datetime.datetime.now()
+    print(now)
+    new_mat = fill_matrix_none(width_shrinkage, height_shrinkage, matrix, path)
+    g1 = Graph(new_mat)
+    now = datetime.datetime.now()
+    print(now)
+    path2 = g1.find_path(start, finish)
+    now = datetime.datetime.now()
+    print(now)
+    plt.figure()
+    plt.title("Graph")
+    plt.imshow(matrix)
+    plt.savefig("mat.png")
+    matrix = [[0 for _ in range(width)] for _ in range(height)]
+    for i in range(len(path2)):
+        x, y = path2[i]
+        matrix[x][y] = 1
+    plt.figure()
+    plt.title("Path")
+    plt.imshow(matrix)
+    plt.savefig("path1.png")
